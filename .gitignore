@@ -1,0 +1,5 @@
+./Results/*
+!./Results/.*
+./_data/tmp/*
+!./_data/tmp/.*
+.DS_Store
