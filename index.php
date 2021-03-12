@@ -1,16 +1,17 @@
 <?php
 
-function urlBase(){
+function urlBase()
+{
   $uri_parts   = explode('?', $_SERVER['REQUEST_URI'], 2);
   $https       = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off');
   $defaultPort = $https ? '443' : '80';
   $thisPort    = $_SERVER['SERVER_PORT'];
-  return sprintf("%s://%s%s%s"
-                ,($https ? 'https' : 'http')
-				,$_SERVER['SERVER_NAME']
-				,($thisPort == $defaultPort ? '' : ':'.$thisPort)
-				,$uri_parts[0]
-                );
+  return sprintf  ("%s://%s%s%s"
+                  ,($https ? 'https' : 'http')
+				          ,$_SERVER['SERVER_NAME']
+				          ,($thisPort == $defaultPort ? '' : ':'.$thisPort)
+				          ,$uri_parts[0]
+                  );
 }
 
 $sortParameter   = "sort";
@@ -57,7 +58,36 @@ uasort($resulteList, function($a, $b) {
     return $b["modTime"] <=> $a["modTime"]; // This one sorts descending
 });
 	}
-$pageTitle = "ECU::Blackboard Rubric Processor"
+$pageTitle = "Blackboard Rubric Processor";
+
+
+function grabWebArtefact ($externalURL, $newLocation)
+{
+  $location = $externalURL;
+  if (! file_exists ($newLocation))
+    {
+      try
+      {
+        file_put_contents($newLocation, fopen($externalURL, 'r'));
+      }
+      catch (Exception $e)
+      {
+        $location = "";
+      }
+    }
+  if (file_exists ($newLocation))
+      {
+        $location = $newLocation;
+      }
+  return $location;
+}
+ 
+$favicon      = grabWebArtefact ("https://www.ecu.edu.au/favicon.ico", "images/favicon.ico");
+$help         = grabWebArtefact ("https://icons.iconarchive.com/icons/treetog/junior/64/help-icon.png", "images/help.png");
+$zipIcon      = grabWebArtefact ("https://icons.iconarchive.com/icons/hopstarter/3d-cartoon-vol3/32/Zip-icon.png","images/zip.png");
+$modifiedIcon = grabWebArtefact ("https://icons.iconarchive.com/icons/oxygen-icons.org/oxygen/32/Apps-preferences-system-time-icon.png","images/modified.png");
+$reportIcon   = grabWebArtefact ("https://icons.iconarchive.com/icons/aha-soft/software/32/reports-icon.png","images/report.png");
+
 ?>
 
 <!doctype html>
@@ -67,85 +97,127 @@ $pageTitle = "ECU::Blackboard Rubric Processor"
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="<?php echo($pageTitle);?>">
     <meta name="author" content="">
-	<title><?php echo($pageTitle);?></title>
-    <!-- Bootstrap core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="https://www.ecu.edu.au/favicon.ico">   
+	  <title><?php echo($pageTitle);?></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <link rel="icon" type="image/x-icon" href="<?php echo($favicon);?>">   
 
-    <!-- Custom styles for this template -->
-    <link href="css/form-validation.css" rel="stylesheet">
+    <!-- <link href="css/form-validation.css" rel="stylesheet"> -->
+
+    <style id="compiled-css" type="text/css">
+          .table-fixed tbody 
+            {
+            height: 500px;
+            overflow-y: auto;
+            width: 100%;
+            }
+
+          .table-fixed thead,
+          .table-fixed tbody,
+          .table-fixed tr,
+          .table-fixed td,
+          .table-fixed th
+            {
+            display: block;
+            }
+
+          .table-fixed tbody td,
+          .table-fixed tbody th,
+          .table-fixed thead > tr > th
+          {
+            float: left;
+            position: relative;
+
+            &::after 
+              {
+              content: '';
+              clear: both;
+              display: block;
+              }
+          }
+    </style>
+
+
   </head>
 
   <body class="bg-light">
 
     <div class="container">
-      <div class="py-5 text-center">
-                <p align="right"><a href="help.html"  
-    onclick="window.open('help.html', 
-                         'newwindow'); 
-              return false;"
- >Help</a></p>
-        <h2><?php echo($pageTitle);?></h2>
-        <p class="lead">Use this form to process a Blackboard Archive zip file to extract the rubric information.</p>
-
-
-      </div>
-
-      <div class="row">
-        
-
-        <div class="col-md-12 order-md-1">
-          <h4 class="mb-3">New Archive zip file</h4>
-
-          <form class="needs-validation" action="./process.php" method="POST" enctype="multipart/form-data" novalidate>
-
-            <label for="exampleFormControlFile1">Archive Zip File</label>
-            <input type="file" class="form-control-file" id="zipFile" name="zipFile" required>
-            <div class="invalid-feedback">
-                You must select a file.
-            </div>
-            <br />
-            <label for="exampleFormControlFile2">GradeCentre student CSV file</label>
-            <input type="file" class="form-control-file" id="csvFile" name="csvFile" required>
-            <div class="invalid-feedback">
-                You must select a file.
-            </div>
-            <br />
-            <button class="btn btn-primary btn-lg btn-block" type="submit">Process</button>
-          
-          </form>
-        </div>
-      </div>
-
-      <br />
-      <hr />
+      <p align="right"><img alt="Help" src="<?php echo($help);?>" onclick="window.open('help.html','newwindow'); return false;"></p>
+      <div class="py-9 text-center">
+      <h2 class="display-4"><?php echo($pageTitle);?></h2>
+      <p class="lead">Use this form to process a Blackboard Archive zip file to extract the rubric information.</p>
+    </div>
+    <hr/>
+    <div class="row">
       <div class="col-md-12 order-md-1">
+        <!-- <h4 class="mb-3">New Archive zip file</h4> -->
+
+        <form class="needs-validation" id="id" action="./process.php" method="POST" enctype="multipart/form-data" novalidate>
+        
+          <label for="zipFile">Archive Zip File</label>
+          <input type="file" class="form-control-file" id="zipFile" name="zipFile" accept="application/zip" required>
+          <div class="invalid-feedback">
+              You must select a file.
+          </div>
+          <br />
+          <label for="csvFile">GradeCentre student CSV file</label>
+          <input type="file" class="form-control-file" id="csvFile" name="csvFile" accept=".csv" required>
+          <div class="invalid-feedback">
+              You must select a file.
+          </div>
+          <br />
+          <button class="btn btn-primary btn-lg btn-block" type="submit">Process</button>
+        </form>
+      </div>
+    </div>
+
+    <br/>
+    <hr/>
+    <br/>
+
 		<?php
 			if (count($resulteList) == 0) {
-				echo ("<H3>No Previous Results</H3>\n");
+				echo ("<H3 class=\"display-4\">No Previous Results</H3>" . PHP_EOL);
 				}
 			else
 				{
-				echo ("<H3>Previous Results</H3>\n");
-				echo ("<TABLE CLASS=\"table.sortable\">\n");
-				echo ("<TR>");
-				 if ($theSort === "modTime") {
-					echo("<TH><A HREF=".$theBaseURL.">Filename<A></TH>");
-					echo("<TH>Date Modified</TH>");
-					echo("<TH>Archives</TH>");
-					}
-				 else
-					{
-					echo("<TH>Filename</TH>");
-					echo("<TH><A HREF=".$sortModifiedURL.">Date Modified<A></TH>");
-					echo("<TH>Archives</TH>");
-					}
-				echo ("</TR>\n");
+        echo ('<div class="container py-5">' . PHP_EOL);
+        echo ('<div class="row">' . PHP_EOL);
+        echo ('<div class="col-lg-12 mx-auto bg-white rounded shadow">' . PHP_EOL);
+
+        echo ('<div class="table-responsive">' . PHP_EOL);
+        echo ('    <table class="table sortable table-fixed table-striped">' . PHP_EOL);
+				echo ("       <caption>Previous Results</caption>" . PHP_EOL);
+        echo ('    <thead class="thead-light">' . PHP_EOL);
+        echo ('<tr>' . PHP_EOL);
+        $headTxt = "Report";
+        if (! ($reportIcon == null or strlen($reportIcon) == 0))
+          {
+            $headTxt = "<IMG SRC=\"$reportIcon\" ALT=\"" . $headTxt . "\"/>";            
+          }
+        echo("<TH scope=\"col\" class=\"col-5\" data-defaultsign=\"AZ\" data-defaultsort=\"asc\"><A class=\"text-dark\" HREF=".$theBaseURL.">" . $headTxt . "<A></TH>" . PHP_EOL);
+        $headTxt = "Date Modified";
+        if (! ($modifiedIcon == null or strlen($modifiedIcon) == 0))
+          {
+            $headTxt = "<IMG SRC=\"$modifiedIcon\" ALT=\"" . $headTxt . "\"/>";            
+          }
+        echo("<TH scope=\"col\" class=\"col-3\"><A class=\"text-dark\" HREF=".$sortModifiedURL.">" . $headTxt . "<A></TH>" . PHP_EOL);
+        $headTxt = "Archives";
+        if (! ($zipIcon == null or strlen($zipIcon) == 0))
+          {
+            $headTxt = "<IMG SRC=\"$zipIcon\" ALT=\"" . $headTxt . "\"/>";
+          }
+        echo("<TH scope=\"col\" class=\"col-3\">" . $headTxt . "</TH>" . PHP_EOL);
+				echo ("</TR>" . PHP_EOL);
+        echo ('</thead>' . PHP_EOL);
+        echo ('<tbody>' . PHP_EOL);
 				
 
 				foreach($resulteList as $item) {
-				  echo("<TR VALIGN=\"TOP\"><TD><a href=\"".$item["url"]."\" target=\"_blank\">".$item["filename"]."</a></TD><TD>".$item['modTime']."</TD>");
-				  echo("<TD>");
+				  echo("<TR VALIGN=\"TOP\">" . PHP_EOL);
+				  echo("<TD scope=\"col\" class=\"col-5\"><a class=\".text-success\" href=\"".$item["url"]."\" target=\"_blank\">".$item["filename"]."</a></TD>" . PHP_EOL);
+				  echo("<TD scope=\"col\" class=\"col-3\">".$item['modTime']."</TD>" . PHP_EOL);
+				  echo("<TD scope=\"col\" class=\"col-3\">" . PHP_EOL);
 				  $pp = pathinfo($item["url"]);
 				  $srchPath = $pp['dirname']."/".$pp['basename']."/*.zip";
 				  // echo($srchPath);
@@ -154,34 +226,30 @@ $pageTitle = "ECU::Blackboard Rubric Processor"
 				  	echo ("&nbsp;");
 				  	}
 				  else {
-						echo("<TABLE CLASS=\"table.sortable\">");
 						arsort ($matches);
+            $archiveLine = "";
 						foreach ($matches as $match) {
-							echo "<TR><TD><a href=\"".$match."\">".substr(basename($match),(strlen($pp['basename'])+1),-4)."</a></TD></TR>";
+              if (strlen($archiveLine) > 0)
+              {
+                $archiveLine .= "<BR/>" . PHP_EOL;
+              }
+              $archiveLine .= "<a href=\"".$match."\">".substr(basename($match),(strlen($pp['basename'])+1),-4)."</a>";
 						}
-						echo("</TABLE>");
-					   }
-				  echo("</TD>");
-				  echo("</TR>\n");
+            echo $archiveLine . PHP_EOL;
+					  }
+				  echo("</TD>" . PHP_EOL);
+				  echo("</TR>" . PHP_EOL);
 					}
-				echo ("</TABLE>\n");
+          echo ('</tbody>' . PHP_EOL);
+          echo ("</TABLE>" . PHP_EOL);
+          echo ("</DIV>" . PHP_EOL);
+          echo ("</DIV>" . PHP_EOL);
+          echo ("</DIV>" . PHP_EOL);
+          echo ("</DIV>" . PHP_EOL);
 				}
 		?>
-      </div>
-
-    </div>
-
-      
-
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script>window.jQuery || document.write('<script src="scripts/jquery-slim.min.js"><\/script>')</script>
-    <script src="scripts/popper.min.js"></script>
-    <script src="scripts/bootstrap.min.js"></script>
-    <script src="scripts/holder.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
     <script>
       // Example starter JavaScript for disabling form submissions if there are invalid fields
       (function() {

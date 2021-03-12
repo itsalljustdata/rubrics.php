@@ -1,0 +1,25 @@
+<div class="table-responsive">
+	<table id="result_###RUBRICID###" class="table-fixed table table-striped table-bordered table-sm">
+		<thead>
+			###HEADER_ROW###
+		</thead>
+		<tbody>
+			###RESULT_ROW###
+		</tbody>
+		<tfoot>
+    		###FOOTER_ROW###
+		</tfoot>
+	</table>
+</div>
+<script type="text/javascript">
+{$(document).ready(function () {
+	$('#result_###RUBRICID###').DataTable({
+	  "aaSorting": [],
+	  columnDefs: [{
+	  orderable: false,
+	  targets: 3
+	  }]
+	});
+	  $('.dataTables_length').addClass('bs-select');
+	});}
+</script>
